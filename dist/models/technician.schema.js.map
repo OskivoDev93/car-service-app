@@ -1,0 +1,1 @@
+{"version":3,"file":"technician.schema.js","sourceRoot":"","sources":["../../src/models/technician.schema.ts"],"names":[],"mappings":";;;AAAA,qCAAqC;AAExB,QAAA,gBAAgB,GAAG,IAAI,QAAQ,CAAC,MAAM,CAC/C;IACA,UAAU,EAAE;QACR,IAAI,EAAC,QAAQ,CAAC,MAAM,CAAC,KAAK,CAAC,QAAQ;QACnC,GAAG,EAAE,MAAM;KACd;IACD,YAAY,EAAE,OAAO;CACpB,CACJ,CAAA;AAED,QAAQ,CAAC,KAAK,CAAC,MAAM,EAAE,wBAAgB,CAAC,CAAC"}
