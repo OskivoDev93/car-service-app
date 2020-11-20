@@ -1,20 +1,42 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { UserService } from '../shared/user.service';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+  ) {}
 
-    constructor(private userService: UserService) {
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  tempAuth() {
+    return { auth: 'runs' };
+  }
 
-    }
+  @Post('login')
+  async login(@Body() userDTO: any) {
+    const user = await this.userService.findByLogin(userDTO);
+    const payload = {
+      username: user.username,
+      plateNumber: user.plateNumber,
+    };
 
-    @Post('login')
-    async login(@Body() userDTO: any) {
-        return this.userService.findByLogin(userDTO);
-    }
+    const token = await this.authService.signByPayload(payload);
+    return { user, token };
+  }
 
-    @Post('register')
-    async register(@Body() userDTO: any) {
-        return await this.userService.create(userDTO)
-    }
+  @Post('register')
+  async register(@Body() userDTO: any) {
+    const user = await this.userService.create(userDTO);
+    const payload = {
+      username: user.username,
+      driver: user.driver,
+      technician: user.technician,
+    };
+    const token = await this.authService.signByPayload(payload);
+    return { user, token };
+  }
 }
