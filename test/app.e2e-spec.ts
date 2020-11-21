@@ -9,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { closeInMongodConnection, rootMongooseTestModule } from './test-utils';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from '../src/models/user.schema';
+import { LookupFunction } from 'net';
 
 const app = 'http://localhost:3000';
 
@@ -92,6 +93,17 @@ describe('Auth', () => {
           expect(body.user.username).toEqual('jimmy');
         })
         .expect(HttpStatus.CREATED);
+    });
+    it('should not login', async () => {
+      const user: LoginDTO = {
+        username: 'jimmy4',
+        password: 'nottherightOne',
+      };
+      return request(app)
+        .post('/auth/login')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 
