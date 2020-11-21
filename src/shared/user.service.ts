@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { LoginDTO, RegisterDTO } from '../auth/auth.dto';
 import { User } from '../types/user';
 import * as bcrypt from 'bcrypt';
+import { Payload } from '../types/payload';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
   async create(UserDTO: RegisterDTO) {
     const { username } = UserDTO;
     const user = await this.userModel.findOne({ username });
+    console.log('user =', user);
     if (user) {
       throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
@@ -38,7 +40,7 @@ export class UserService {
     }
   }
 
-  async findByPayload(payload: any) {
+  async findByPayload(payload: Payload) {
     const { username } = payload;
     return this.userModel.findOne({ username });
   }
