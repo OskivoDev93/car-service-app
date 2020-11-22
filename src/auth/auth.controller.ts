@@ -4,9 +4,6 @@ import { Payload } from '../types/payload';
 import { UserService } from '../shared/user.service';
 import { AuthService } from './auth.service';
 import { LoginDTO, RegisterDTO } from './auth.dto';
-import { User } from 'src/utilities/user.decorator';
-import { TechnicianGuard } from '../guards/technician.guard';
-import { DriverGuard } from '../guards/driver.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -14,13 +11,6 @@ export class AuthController {
     private userService: UserService,
     private authService: AuthService,
   ) {}
-
-  @Get()
-  @UseGuards(AuthGuard('jwt'), TechnicianGuard, DriverGuard)
-  async findAll(@User() user: any) {
-    console.log(user);
-    return this.userService.findAll();
-  }
 
   @Post('login')
   async login(@Body() userDTO: LoginDTO) {

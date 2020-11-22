@@ -12,14 +12,6 @@ import { UserSchema } from '../src/models/user.schema';
 
 const app = 'http://localhost:3000';
 
-describe('ROOT', () => {
-  it('ping', () => {
-    return request(app).get('/').expect(200).expect({
-      hello: 'world',
-    });
-  });
-});
-
 describe('Auth', () => {
   let service: UserService;
 
@@ -39,45 +31,83 @@ describe('Auth', () => {
   });
 
   describe('Auth', () => {
+    const user: RegisterDTO = {
+      username: 'jimmy',
+      password: 'eatworld',
+    };
+
+    const technicianUserReg: RegisterDTO = {
+      username: 'technician1',
+      password: 'techician1',
+      plateNumber: 'AFD1231',
+      technician: true,
+    };
+
+    const technicianUserLogIn: LoginDTO = {
+      username: 'technician1',
+      password: 'techician1',
+    };
+
+    let userToken: string;
+    let technicianToken: string;
+
     it('the app should register the user', () => {
-      const user: RegisterDTO = {
-        username: 'jimmy',
-        password: 'eatworld',
-      };
-
       return request(app)
         .post('/auth/register')
-        .set('Accept', 'application/json')
-        .send(user)
-        .expect(HttpStatus.CREATED);
-    });
-    it('should reject duplicate registration', () => {
-      const user: RegisterDTO = {
-        username: 'jimmy',
-        password: 'eatworld',
-      };
-
-      return request(app)
-        .post('/auth/register')
-        .set('Accept', 'application/json')
-        .send(user)
-        .expect(({ body }) => {
-          console.log(body);
-        })
-        .expect(HttpStatus.BAD_REQUEST);
-    });
-    it('should login', async () => {
-      const user: LoginDTO = {
-        username: 'jimmy',
-        password: 'eatworld',
-      };
-      return request(app)
-        .post('/auth/login')
         .set('Accept', 'application/json')
         .send(user)
         .expect(({ body }) => {
           expect(body.token).toBeDefined();
           expect(body.user.username).toEqual('jimmy');
+          expect(body.user.technician).toBeFalsy();
+        })
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('it should register the technician', () => {
+      return request(app)
+        .post('/auth/register')
+        .set('Accept', 'application/json')
+        .send(technicianUserReg)
+        .expect(({ body }) => {
+          expect(body.token).toBeDefined();
+          expect(body.user.username).toEqual('technician1');
+          expect(body.user.technician).toBeTruthy();
+        })
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should reject duplicate registration', () => {
+      return request(app)
+        .post('/auth/register')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+    it('should login user', async () => {
+      return request(app)
+        .post('/auth/login')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(({ body }) => {
+          userToken = body.token;
+          expect(body.token).toBeDefined();
+          expect(body.user.username).toEqual('jimmy');
+          expect(body.user.technician).toBeFalsy();
+        })
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should login technician', async () => {
+      return request(app)
+        .post('/auth/login')
+        .set('Accept', 'application/json')
+        .send(technicianUserLogIn)
+        .expect(({ body }) => {
+          technicianToken = body.token;
+          expect(body.token).toBeDefined();
+          expect(body.user.username).toEqual('technician1');
+          expect(body.user.technician).toBeTruthy();
         })
         .expect(HttpStatus.CREATED);
     });
