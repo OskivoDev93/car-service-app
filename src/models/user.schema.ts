@@ -17,6 +17,10 @@ export const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  availability: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 UserSchema.pre('save', async function (next: mongoose.HookNextFunction) {

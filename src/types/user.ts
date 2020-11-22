@@ -7,4 +7,5 @@ export interface User extends Document {
   driver: boolean;
   plateNumber: string;
   created: Date;
+  availability: boolean;
 }

@@ -5,6 +5,7 @@ import { LoginDTO, RegisterDTO } from '../auth/auth.dto';
 import { User } from '../types/user';
 import * as bcrypt from 'bcrypt';
 import { Payload } from '../types/payload';
+import { callbackify } from 'util';
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,12 @@ export class UserService {
       throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
     const createdUser = new this.userModel(UserDTO);
+    if (!createdUser.technician || !createdUser.driver) {
+      this.userModel.update(
+        { _id: createdUser.id },
+        { $unset: { availability: undefined } },
+      );
+    }
     createdUser.save();
     return this.sanitize(createdUser);
   }
@@ -44,5 +51,4 @@ export class UserService {
     const { username } = payload;
     return this.userModel.findOne({ username });
   }
-
 }
