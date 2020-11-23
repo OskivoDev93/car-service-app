@@ -23,7 +23,10 @@ export class CarServicingService {
   }
 
   async serviceOrder(CarServiceDTO: CarServiceDTO) {
-    const getTechnician = await this.userModel.findOne({ technician: true });
+    const getTechnician = await this.userModel.findOne({
+      technician: true,
+      availability: true,
+    }); // find one available technician
     console.log('availableTechnician =', getTechnician);
     if (!getTechnician) {
       Logger.log('no technicians are available at this moment');
@@ -35,12 +38,15 @@ export class CarServicingService {
         technicians: getTechnician,
       },
     );
-    getTechnician.update({ availability: false });
+    getTechnician.update({ availability: false }); // change availability status to false (unavailable)
     return await assignTechnician.save();
   }
 
   async drivingOrder(driverDTO: DriverDTO) {
-    const driver = await this.userModel.findOne({ driver: true });
+    const driver = await this.userModel.findOne({
+      driver: true,
+      availability: true,
+    }); //find one available driver
     console.log('availableDriver =', driver);
     if (!driver) {
       Logger.log('no drivers are available at this moment');
@@ -50,7 +56,7 @@ export class CarServicingService {
       { _id: driveService.id },
       { driver: driver },
     );
-    driver.update({ availability: false });
+    driver.update({ availability: false }); // change availability status to false (unavailable)
     return await assignDriver.save();
   }
 }
