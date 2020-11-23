@@ -1,18 +1,28 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import { CarService } from 'src/types/car-service';
+import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { UserService } from '../shared/user.service';
+import { CarServicingService } from './car-service.service';
 
 @Controller('car-service')
 export class CarServiceController {
-  constructor(private carService: CarService) {}
+  constructor(
+    private carService: CarServicingService,
+    private userService: UserService,
+  ) {}
 
   @Get()
-  getAllTechnicians() {}
+  async getAllTechnicians() {
+    await this.carService.findAllTechnicians();
+  }
 
   @Get()
-  getAllDrivers() {}
+  async getAllDrivers() {
+    await this.carService.findAllAlternateDrivers();
+  }
 
   @Post()
-  createService(){}
+  async createService(@Body() order: any) {
+    await this.carService.serviceOrder(order);
+  }
 
   @Post()
   assignAlternateDriver() {}

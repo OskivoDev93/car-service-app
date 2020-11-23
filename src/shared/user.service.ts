@@ -13,7 +13,7 @@ export class UserService {
 
   private sanitize(user: User) {
     return user.depopulate('password');
-  }
+  };
 
   async create(UserDTO: RegisterDTO) {
     const { username } = UserDTO;
