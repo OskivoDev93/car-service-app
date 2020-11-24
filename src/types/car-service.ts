@@ -4,6 +4,6 @@ import { User } from './user';
 export interface CarService extends Document {
   owner: string;
   price: number;
-  technicians: any;
+  technicians: User[];
   serviceDate: Date;
 }
