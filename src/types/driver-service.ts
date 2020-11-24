@@ -2,8 +2,8 @@ import { Document } from 'mongoose';
 import { User } from './user';
 
 export interface DriverService extends Document {
-  owner: User;
+  owner: string;
   price: number;
-  date: Date;
-  driver: User;
+  driver: any;
+  serviceDate: Date;
 }

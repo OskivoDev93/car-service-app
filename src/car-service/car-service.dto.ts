@@ -1,15 +1,17 @@
 import { User } from '../types/user';
 
-export interface CarServiceDTO {
-  owner: string;
+export interface CreateCarServiceDTO {
   price: number;
   technicians: User[];
   serviceDate: Date;
 }
 
-export interface DriverDTO {
-  owner: string;
+export interface CreateDriverDTO {
   price: number;
   driver: User;
   serviceDate: Date;
 }
+
+export type updateCarServiceDTO = Partial<CreateCarServiceDTO>;
+
+export type updateDriverDTO = Partial<CreateDriverDTO>;

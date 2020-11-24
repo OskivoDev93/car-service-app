@@ -2,8 +2,8 @@ import { Document } from 'mongoose';
 import { User } from './user';
 
 export interface CarService extends Document {
-  owner: User;
+  owner: string;
   price: number;
-  date: Date;
-  technician: User[];
+  technicians: any;
+  serviceDate: Date;
 }

@@ -1,35 +1,68 @@
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import { UserService } from '../shared/user.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { CreateCarServiceDTO, CreateDriverDTO } from './car-service.dto';
 import { CarServicingService } from './car-service.service';
+import { User as UserDocument } from '../types/user';
+import { AuthGuard } from '@nestjs/passport';
+import { UserGuard } from '../guards/user.guard';
+import { TechnicianGuard } from 'src/guards/technician.guard';
+import { DriverGuard } from 'src/guards/driver.guard';
 
 @Controller('car-service')
 export class CarServiceController {
-  constructor(
-    private carService: CarServicingService,
-    private userService: UserService,
-  ) {}
+  constructor(private carService: CarServicingService) {}
 
-  @Get()
+  @Get('getAllTechnicians')
   async getAllTechnicians() {
     await this.carService.findAllTechnicians();
   }
 
-  @Get()
+  @Get('getAllDrivers')
   async getAllDrivers() {
     await this.carService.findAllAlternateDrivers();
   }
 
-  @Post()
-  async createService(@Body() order: any) {
-    await this.carService.serviceOrder(order);
+  @Get('getAvailableTechnician')
+  async getAvailableTechnician() {
+    await this.carService.findavailableTechnicians();
   }
 
-  @Post()
-  assignAlternateDriver() {}
+  @Get('AvailableDrivers')
+  async getAvailableDrivers() {
+    await this.carService.findavailableDrivers();
+  }
 
-  @Put(':id')
-  update() {}
+  @Post('ServiceOrder')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
+  async createService(@Body() order: CreateCarServiceDTO, user: UserDocument) {
+    await this.carService.serviceOrder(order, user);
+  }
 
-  @Delete(':id')
-  delete() {}
+  @Post('AssignAlternateDriver')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
+  async assignAlternateDriver(
+    @Body() order: CreateDriverDTO,
+    user: UserDocument,
+  ) {
+    await this.carService.drivingOrder(order, user);
+  }
+
+  @Delete('deleteCarService')
+  @UseGuards(AuthGuard('jwt'), TechnicianGuard)
+  async deleteCarService(@Param('id') id: string) {
+    return this.carService.deleteCarServiceOrder(id);
+  }
+
+  @Delete('deleteCarService')
+  @UseGuards(AuthGuard('jwt'), DriverGuard)
+  async deleteDriverAssignOrder(@Param('id') id: string) {
+    return this.carService.deleteDriverAssignOrder(id);
+  }
 }
