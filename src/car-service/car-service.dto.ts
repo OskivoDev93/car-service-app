@@ -1,15 +1,14 @@
+import { LoginDTO } from 'src/auth/auth.dto';
 import { User } from '../types/user';
 
 export interface CreateCarServiceDTO {
   price: number;
-  technicians: User[];
-  serviceDate: Date;
+  serviceDate: string;
 }
 
 export interface CreateDriverDTO {
   price: number;
-  driver: User;
-  serviceDate: Date;
+  serviceDate: string;
 }
 
 export type updateCarServiceDTO = Partial<CreateCarServiceDTO>;

@@ -16,14 +16,8 @@ export const CarServiceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
-      quantity: {
-        type: Number,
-        default: 0,
-      },
     },
   ],
-  serviceDate: {
-    type: Date,
-    default: Date.now,
-  },
+  serviceDate: String,
+ 
 });

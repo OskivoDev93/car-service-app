@@ -5,5 +5,5 @@ export interface CarService extends Document {
   owner: string;
   price: number;
   technicians: User[];
-  serviceDate: Date;
+  serviceDate: string;
 }

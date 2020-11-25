@@ -5,5 +5,5 @@ export interface DriverService extends Document {
   owner: string;
   price: number;
   driver: User;
-  serviceDate: Date;
+  serviceDate: string;
 }

@@ -12,8 +12,9 @@ import { CarServicingService } from './car-service.service';
 import { User as UserDocument } from '../types/user';
 import { AuthGuard } from '@nestjs/passport';
 import { UserGuard } from '../guards/user.guard';
-import { TechnicianGuard } from 'src/guards/technician.guard';
-import { DriverGuard } from 'src/guards/driver.guard';
+import { TechnicianGuard } from '../guards/technician.guard';
+import { DriverGuard } from '../guards/driver.guard';
+import { User } from '../utilities/user.decorator';
 
 @Controller('car-service')
 export class CarServiceController {
@@ -34,19 +35,23 @@ export class CarServiceController {
     await this.carService.findavailableTechnicians();
   }
 
-  @Get('AvailableDrivers')
+  @Get('getAvailableDriver')
   async getAvailableDrivers() {
     await this.carService.findavailableDrivers();
   }
 
   @Post('ServiceOrder')
   @UseGuards(AuthGuard('jwt'), UserGuard)
-  async createService(@Body() order: CreateCarServiceDTO, user: UserDocument) {
-    await this.carService.serviceOrder(order, user);
+  async createService(
+    @Body() order: CreateCarServiceDTO,
+    @User('username') user,
+  ) {
+    console.log('user =', user);
+    await this.carService.serviceOrder(order, user.username);
   }
 
-  @Post('AssignAlternateDriver')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @Post('AssignAlternateDriver/:id')
+  @UseGuards(AuthGuard('jwt'))
   async assignAlternateDriver(
     @Body() order: CreateDriverDTO,
     user: UserDocument,
@@ -54,13 +59,13 @@ export class CarServiceController {
     await this.carService.drivingOrder(order, user);
   }
 
-  @Delete('deleteCarService')
+  @Delete('deleteCarService/:id')
   @UseGuards(AuthGuard('jwt'), TechnicianGuard)
   async deleteCarService(@Param('id') id: string) {
     return this.carService.deleteCarServiceOrder(id);
   }
 
-  @Delete('deleteCarService')
+  @Delete('deleteCarService/:id')
   @UseGuards(AuthGuard('jwt'), DriverGuard)
   async deleteDriverAssignOrder(@Param('id') id: string) {
     return this.carService.deleteDriverAssignOrder(id);

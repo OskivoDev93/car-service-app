@@ -9,4 +9,5 @@ export interface RegisterDTO {
   plateNumber?: string;
   technician?: boolean;
   driver?: boolean;
+  availability: boolean;
 }

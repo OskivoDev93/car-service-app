@@ -5,7 +5,7 @@ import { LoginDTO, RegisterDTO } from '../auth/auth.dto';
 import { User } from '../types/user';
 import * as bcrypt from 'bcrypt';
 import { Payload } from '../types/payload';
-import { callbackify } from 'util';
+
 
 @Injectable()
 export class UserService {
@@ -23,13 +23,19 @@ export class UserService {
       throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
     const createdUser = new this.userModel(UserDTO);
-    if (!createdUser.technician || !createdUser.driver) {
-      this.userModel.update(
-        { _id: createdUser.id },
-        { $unset: { availability: undefined } },
-      );
+    console.log('before =', createdUser);
+    const { technician, driver } = createdUser;
+    if (technician || driver) {
+      createdUser.availability = true;
+      console.log('after =', createdUser)
+    } else if (!technician || !driver) {
+      createdUser.availability = undefined;
+      console.log('else after =', createdUser);
+    } else if (technician && user) {
+      createdUser.availability = true;
+      console.log('tech & driver =', createdUser)
     }
-    createdUser.save();
+    await createdUser.save();
     return this.sanitize(createdUser);
   }
 

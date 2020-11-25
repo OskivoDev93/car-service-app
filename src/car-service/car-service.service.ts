@@ -3,9 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CarService } from '../types/car-service';
 import { DriverService } from '../types/driver-service';
-import { User } from 'src/utilities/user.decorator';
+import { User } from '../utilities/user.decorator';
 import { User as UserDocument } from '../types/user';
 import { CreateCarServiceDTO, CreateDriverDTO } from './car-service.dto';
+
 
 @Injectable()
 export class CarServicingService {
@@ -15,16 +16,21 @@ export class CarServicingService {
     @InjectModel('DriverService') private driverService: Model<DriverService>,
   ) {}
 
+
   async findAllTechnicians() {
     const result = await this.userModel.find({ technician: true });
     console.log('technicians =', result);
-    return { result };
+    return {
+      allTechnicians: result,
+    };
   }
 
   async findAllAlternateDrivers() {
     const result = await this.userModel.find({ driver: true });
     console.log('alternateDrivers =', result);
-    return { result };
+    return {
+      allDrivers: result,
+    };
   }
 
   async findavailableTechnicians() {
@@ -33,7 +39,9 @@ export class CarServicingService {
       availability: true,
     });
     console.log('availableTechnicians =', result);
-    return { result };
+    return {
+      availableTechnicians: result,
+    };
   }
 
   async findavailableDrivers() {
@@ -42,34 +50,33 @@ export class CarServicingService {
       availability: true,
     });
     console.log('availableDrivers =', result);
-    return { result };
+    return {
+      availableDrivers: result,
+    };
   }
 
-  async serviceOrder(
-    CarServiceDTO: CreateCarServiceDTO,
-    @User() user: UserDocument,
-  ) {
+  async serviceOrder(CarServiceDTO: CreateCarServiceDTO, username: string) {
+    const user = await this.userModel.findOne({ username: username });
     const getTechnician = await this.userModel.findOne({
       technician: true,
       availability: true,
     }); // find one available technician
     console.log('availableTechnician =', getTechnician);
     if (!getTechnician) {
-      Logger.log('no technicians are available at this moment');
+      return Logger.log('no available technician at this time');
+    } else {
+      getTechnician.availability = false;
     }
-    const { plateNumber } = user;
+    getTechnician.save();
     const service = await this.carServiceModel.create({
       ...CarServiceDTO,
-      owner: plateNumber,
+      owner: user.plateNumber,
+      technicians: [getTechnician],
     });
-    const assignTechnician = await service.update(
-      { _id: service.id },
-      {
-        technicians: getTechnician,
-      },
-    );
-    getTechnician.update({ availability: false }); // change availability status to false (unavailable)
-    return await assignTechnician.save();
+    console.log('after service');
+    console.log('service =', service);
+    await service.save();
+    return service.populate('owner');
   }
 
   async drivingOrder(driverDTO: CreateDriverDTO, @User() user: UserDocument) {
@@ -80,18 +87,17 @@ export class CarServicingService {
     console.log('availableDriver =', driver);
     if (!driver) {
       Logger.log('no drivers are available at this moment');
+    } else {
+      driver.availability = false; // change availability status to false (unavailable)
     }
+    driver.save();
     const { plateNumber } = user;
     const createService = await this.driverService.create({
       ...driverDTO,
       owner: plateNumber,
+      driver: driver,
     });
-    const assignDriver = await createService.update(
-      { _id: createService.id },
-      { driver: driver },
-    );
-    driver.update({ availability: false }); // change availability status to false (unavailable)
-    return await assignDriver.save();
+    return await createService.save();
   }
 
   async deleteCarServiceOrder(id: string): Promise<CarService> {

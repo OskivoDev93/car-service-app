@@ -5,18 +5,34 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class UserGuard implements CanActivate {
   constructor() {}
 
-  canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
-
-    if (user) {
-      return true;
+    if (!request.headers.authorization) {
+      return false;
     }
-    throw new HttpException('Unauthorized Access', HttpStatus.UNAUTHORIZED);
+    request.user = await this.validateToken(request.headers.authorization);
+    console.log('token validation =', request.user);
+    return true;
+  }
+
+  async validateToken(auth: string) {
+    if (auth.split(' ')[0] !== 'Bearer') {
+      throw new HttpException('Invalid token', HttpStatus.FORBIDDEN);
+    }
+    const token = auth.split(' ')[1];
+    console.log('token =', token)
+    try{
+      const decode = jwt.verify(token, process.env.SECRET_KEY);
+      return decode;
+    } catch (err) {
+      const message = 'Token error: ' + (err.message || err.name);
+      throw new HttpException(message, HttpStatus.FORBIDDEN);
+    }
   }
 }
