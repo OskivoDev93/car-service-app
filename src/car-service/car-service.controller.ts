@@ -21,51 +21,52 @@ export class CarServiceController {
   constructor(private carService: CarServicingService) {}
 
   @Get('getAllTechnicians')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
   async getAllTechnicians() {
     await this.carService.findAllTechnicians();
   }
 
   @Get('getAllDrivers')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
   async getAllDrivers() {
     await this.carService.findAllAlternateDrivers();
   }
 
   @Get('getAvailableTechnician')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
   async getAvailableTechnician() {
     await this.carService.findavailableTechnicians();
   }
 
   @Get('getAvailableDriver')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
   async getAvailableDrivers() {
     await this.carService.findavailableDrivers();
   }
 
   @Post('ServiceOrder')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
-  async createService(
-    @Body() order: CreateCarServiceDTO,
-    @User('username') user,
-  ) {
+  @UseGuards(AuthGuard('jwt'))
+  async createService(@Body() order: CreateCarServiceDTO, @User('_id') user) {
     console.log('user =', user);
-    await this.carService.serviceOrder(order, user.username);
+    await this.carService.serviceOrder(order, user);
   }
 
-  @Post('AssignAlternateDriver/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @Post('AssignAlternateDriver')
+  @UseGuards(AuthGuard('jwt'), UserGuard)
   async assignAlternateDriver(
     @Body() order: CreateDriverDTO,
-    user: UserDocument,
+    @User('_id') user,
   ) {
     await this.carService.drivingOrder(order, user);
   }
 
-  @Delete('deleteCarService/:id')
+  @Delete('deleteCarService')
   @UseGuards(AuthGuard('jwt'), TechnicianGuard)
   async deleteCarService(@Param('id') id: string) {
     return this.carService.deleteCarServiceOrder(id);
   }
 
-  @Delete('deleteCarService/:id')
+  @Delete('deleteCarService')
   @UseGuards(AuthGuard('jwt'), DriverGuard)
   async deleteDriverAssignOrder(@Param('id') id: string) {
     return this.carService.deleteDriverAssignOrder(id);

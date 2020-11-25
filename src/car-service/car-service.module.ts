@@ -6,21 +6,36 @@ import { CarServiceSchema } from '../models/car-service.schema';
 import { CarServiceController } from './car-service.controller';
 import { CarServicingService } from './car-service.service';
 import { UserSchema } from '../models/user.schema';
-import { DriverServiceSchema } from 'src/models/driver-order.schema';
+import { DriverServiceSchema } from '../models/driver-order.schema';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpExceptionFilter } from '../shared/http-exception.filter';
+import { LoggingInterceptor } from '../shared/logging.interceptor';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: 'CarService', schema: CarServiceSchema },
-    ]),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     MongooseModule.forFeature([
-      { name: 'DriverService', schema: DriverServiceSchema },
+      {
+        name: 'CarService',
+        schema: CarServiceSchema,
+        collection: 'carServicing',
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: 'DriverService',
+        schema: DriverServiceSchema,
+        collection: 'AlternateDriverDesignation',
+      },
     ]),
     SharedModule,
     AuthModule,
   ],
   controllers: [CarServiceController],
-  providers: [CarServicingService],
+  providers: [
+    CarServicingService,
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+  ],
 })
 export class CarServiceModule {}

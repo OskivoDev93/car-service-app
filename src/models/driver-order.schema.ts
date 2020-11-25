@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 export const DriverServiceSchema = new mongoose.Schema({
   owner: {
@@ -15,7 +16,6 @@ export const DriverServiceSchema = new mongoose.Schema({
     ref: 'User',
   },
   serviceDate: {
-    type: Date,
-    default: Date.now,
+    type: String,
   },
 });

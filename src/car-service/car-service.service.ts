@@ -3,10 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CarService } from '../types/car-service';
 import { DriverService } from '../types/driver-service';
-import { User } from '../utilities/user.decorator';
-import { User as UserDocument } from '../types/user';
+import { User, User as UserDocument } from '../types/user';
 import { CreateCarServiceDTO, CreateDriverDTO } from './car-service.dto';
-
 
 @Injectable()
 export class CarServicingService {
@@ -15,7 +13,6 @@ export class CarServicingService {
     @InjectModel('CarService') private carServiceModel: Model<CarService>,
     @InjectModel('DriverService') private driverService: Model<DriverService>,
   ) {}
-
 
   async findAllTechnicians() {
     const result = await this.userModel.find({ technician: true });
@@ -55,31 +52,28 @@ export class CarServicingService {
     };
   }
 
-  async serviceOrder(CarServiceDTO: CreateCarServiceDTO, username: string) {
-    const user = await this.userModel.findOne({ username: username });
+  async serviceOrder(CarServiceDTO: CreateCarServiceDTO, user: User) {
+    console.log('userId =', user);
     const getTechnician = await this.userModel.findOne({
       technician: true,
       availability: true,
     }); // find one available technician
-    console.log('availableTechnician =', getTechnician);
     if (!getTechnician) {
       return Logger.log('no available technician at this time');
     } else {
       getTechnician.availability = false;
     }
     getTechnician.save();
-    const service = await this.carServiceModel.create({
+    const service = new this.carServiceModel({
       ...CarServiceDTO,
-      owner: user.plateNumber,
-      technicians: [getTechnician],
+      owner: user,
+      technician: getTechnician,
     });
-    console.log('after service');
     console.log('service =', service);
-    await service.save();
-    return service.populate('owner');
+    return await service.save();
   }
 
-  async drivingOrder(driverDTO: CreateDriverDTO, @User() user: UserDocument) {
+  async drivingOrder(driverDTO: CreateDriverDTO, user: User) {
     const driver = await this.userModel.findOne({
       driver: true,
       availability: true,
@@ -91,10 +85,10 @@ export class CarServicingService {
       driver.availability = false; // change availability status to false (unavailable)
     }
     driver.save();
-    const { plateNumber } = user;
-    const createService = await this.driverService.create({
+    console.log('user', user);
+    const createService = new this.driverService({
       ...driverDTO,
-      owner: plateNumber,
+      owner: user,
       driver: driver,
     });
     return await createService.save();
