@@ -9,13 +9,14 @@ export const CarServiceSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  technician: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  technicians: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
-  
+  ], 
   serviceDate:{
     type: String,
   },
 });
-
+CarServiceSchema.index({ createdAt: 1 }, { expires: '24h' });

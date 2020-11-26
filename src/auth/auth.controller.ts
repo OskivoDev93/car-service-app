@@ -20,6 +20,7 @@ export class AuthController {
       plateNumber: user.plateNumber,
       driver: user.driver,
       technician: user.technician,
+      carType: user.carType,
     };
 
     const token = await this.authService.signByPayload(payload);
@@ -33,6 +34,8 @@ export class AuthController {
       username: user.username,
       driver: user.driver,
       technician: user.technician,
+      plateNumber: user.plateNumber,
+      carType: user.carType,
     };
     const token = await this.authService.signByPayload(payload);
     return { user, token };

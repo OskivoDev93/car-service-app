@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { CreateCarServiceDTO, CreateDriverDTO } from './car-service.dto';
 import { CarServicingService } from './car-service.service';
-import { User as UserDocument } from '../types/user';
 import { AuthGuard } from '@nestjs/passport';
 import { UserGuard } from '../guards/user.guard';
 import { TechnicianGuard } from '../guards/technician.guard';

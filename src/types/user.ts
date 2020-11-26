@@ -5,6 +5,7 @@ export interface User extends Document {
   readonly password: string;
   technician: boolean;
   driver: boolean;
+  carType: string;
   plateNumber: string;
   created: Date;
   availability: boolean;

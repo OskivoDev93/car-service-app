@@ -6,7 +6,8 @@ export interface LoginDTO {
 export interface RegisterDTO {
   username: string;
   password: string;
-  plateNumber?: string;
+  carType: string;
+  plateNumber: string;
   technician?: boolean;
   driver?: boolean;
   availability: boolean;

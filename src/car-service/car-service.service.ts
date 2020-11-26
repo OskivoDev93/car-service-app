@@ -14,6 +14,30 @@ export class CarServicingService {
     @InjectModel('DriverService') private driverService: Model<DriverService>,
   ) {}
 
+  private async findAvailableTechnician() {
+    const getTechnician = await this.userModel.findOne({
+      technician: true,
+      availability: true,
+    }); // find one available technician
+    if (!getTechnician) {
+      return Logger.log('no available technician at this time');
+    }
+    getTechnician.availability = false;
+    return getTechnician.save();
+  }
+
+  private async findAvailableDriver() {
+    const driver = await this.userModel.findOne({
+      driver: true,
+      availability: true,
+    });
+    if (!driver) {
+      return Logger.log('no available drivers at this time');
+    }
+    driver.availability = false;
+    return driver.save();
+  }
+
   async findAllTechnicians() {
     const result = await this.userModel.find({ technician: true });
     console.log('technicians =', result);
@@ -53,39 +77,31 @@ export class CarServicingService {
   }
 
   async serviceOrder(CarServiceDTO: CreateCarServiceDTO, user: User) {
-    console.log('userId =', user);
-    const getTechnician = await this.userModel.findOne({
-      technician: true,
-      availability: true,
-    }); // find one available technician
-    if (!getTechnician) {
-      return Logger.log('no available technician at this time');
-    } else {
-      getTechnician.availability = false;
+    const { carType } = user;
+    if (carType === 'SUV') {
+      const technician1 = await this.findAvailableTechnician();
+      const technician2 = await this.findAvailableTechnician();
+      const service = new this.carServiceModel({
+        ...CarServiceDTO,
+        owner: user,
+        technicians: [technician1, technician2],
+      });
+      console.log('service SUV =', service.technicians);
+      return await service.save();
+    } else if (carType === 'HATCHBACK ' || carType === 'SEDAN') {
+      const technician = await this.findAvailableTechnician();
+      const service = new this.carServiceModel({
+        ...CarServiceDTO,
+        owner: user,
+        technicians: [technician],
+      });
+      console.log("service sedan =", service.technicians);
+      return await service.save();
     }
-    getTechnician.save();
-    const service = new this.carServiceModel({
-      ...CarServiceDTO,
-      owner: user,
-      technician: getTechnician,
-    });
-    console.log('service =', service);
-    return await service.save();
   }
 
   async drivingOrder(driverDTO: CreateDriverDTO, user: User) {
-    const driver = await this.userModel.findOne({
-      driver: true,
-      availability: true,
-    }); //find one available driver
-    console.log('availableDriver =', driver);
-    if (!driver) {
-      Logger.log('no drivers are available at this moment');
-    } else {
-      driver.availability = false; // change availability status to false (unavailable)
-    }
-    driver.save();
-    console.log('user', user);
+    const driver = this.findAvailableDriver();
     const createService = new this.driverService({
       ...driverDTO,
       owner: user,
@@ -96,13 +112,17 @@ export class CarServicingService {
 
   async deleteCarServiceOrder(id: string): Promise<CarService> {
     const order = await this.carServiceModel.findById(id);
-    const changeAvailabilityStatus = await order.update({ availability: true });
-    return await changeAvailabilityStatus.remove();
+    const changeAvailabilityStatus = await order.update({
+      availability: true,
+    });
+    changeAvailabilityStatus.save();
+    return await order.remove();
   }
 
-  async deleteDriverAssignOrder(id: string): Promise<CarService> {
-    const order = await this.carServiceModel.findById(id);
+  async deleteDriverAssignOrder(id: string): Promise<DriverService> {
+    const order = await this.driverService.findById(id);
     const changeAvailabilityStatus = await order.update({ availability: true });
-    return await changeAvailabilityStatus.remove();
+    changeAvailabilityStatus.save();
+    return await order.remove();
   }
 }

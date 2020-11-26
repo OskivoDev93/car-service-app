@@ -17,7 +17,6 @@ export class UserGuard implements CanActivate {
       return false;
     }
     request.user = await this.validateToken(request.headers.authorization);
-    console.log('token validation =', request.user);
     return true;
   }
 
@@ -26,7 +25,6 @@ export class UserGuard implements CanActivate {
       throw new HttpException('Invalid token', HttpStatus.FORBIDDEN);
     }
     const token = auth.split(' ')[1];
-    console.log('token =', token)
     try{
       const decode = jwt.verify(token, process.env.SECRET_KEY);
       return decode;

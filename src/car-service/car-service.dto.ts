@@ -5,7 +5,7 @@ export interface CreateCarServiceDTO {
   owner: User;
   price: number;
   serviceDate: string;
-  technician: User;
+  technicians: User[];
 }
 
 export interface CreateDriverDTO {
