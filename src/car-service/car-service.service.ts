@@ -101,12 +101,14 @@ export class CarServicingService {
   }
 
   async drivingOrder(driverDTO: CreateDriverDTO, user: User) {
-    const driver = this.findAvailableDriver();
+    const driver = await this.findAvailableDriver();
+    console.log("driver =", driver)
     const createService = new this.driverService({
       ...driverDTO,
       owner: user,
       driver: driver,
     });
+    console.log('createService =', createService);
     return await createService.save();
   }
 

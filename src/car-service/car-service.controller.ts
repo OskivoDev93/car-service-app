@@ -10,9 +10,6 @@ import {
 import { CreateCarServiceDTO, CreateDriverDTO } from './car-service.dto';
 import { CarServicingService } from './car-service.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UserGuard } from '../guards/user.guard';
-import { TechnicianGuard } from '../guards/technician.guard';
-import { DriverGuard } from '../guards/driver.guard';
 import { User } from '../utilities/user.decorator';
 
 @Controller('car-service')
@@ -20,25 +17,25 @@ export class CarServiceController {
   constructor(private carService: CarServicingService) {}
 
   @Get('getAllTechnicians')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getAllTechnicians() {
     await this.carService.findAllTechnicians();
   }
 
   @Get('getAllDrivers')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getAllDrivers() {
     await this.carService.findAllAlternateDrivers();
   }
 
   @Get('getAvailableTechnician')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getAvailableTechnician() {
     await this.carService.findavailableTechnicians();
   }
 
   @Get('getAvailableDriver')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getAvailableDrivers() {
     await this.carService.findavailableDrivers();
   }
@@ -51,7 +48,7 @@ export class CarServiceController {
   }
 
   @Post('AssignAlternateDriver')
-  @UseGuards(AuthGuard('jwt'), UserGuard)
+  @UseGuards(AuthGuard('jwt'))
   async assignAlternateDriver(
     @Body() order: CreateDriverDTO,
     @User('_id') user,
@@ -60,13 +57,13 @@ export class CarServiceController {
   }
 
   @Delete('deleteCarService')
-  @UseGuards(AuthGuard('jwt'), TechnicianGuard)
+  @UseGuards(AuthGuard('jwt'))
   async deleteCarService(@Param('id') id: string) {
     return this.carService.deleteCarServiceOrder(id);
   }
 
   @Delete('deleteCarService')
-  @UseGuards(AuthGuard('jwt'), DriverGuard)
+  @UseGuards(AuthGuard('jwt'))
   async deleteDriverAssignOrder(@Param('id') id: string) {
     return this.carService.deleteDriverAssignOrder(id);
   }
