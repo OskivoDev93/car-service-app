@@ -19,3 +19,4 @@ export const DriverServiceSchema = new mongoose.Schema({
     type: String,
   },
 });
+DriverServiceSchema.index({ createdAt: 1 }, { expires: '12h' });
